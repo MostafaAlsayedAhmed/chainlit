@@ -30,16 +30,18 @@ export default function ReadmeButton() {
       </DialogTrigger>
       <DialogContent className="flex flex-col h-screen w-screen max-w-screen max-h-screen border-none !rounded-none overflow-y-auto">
         <div
-          className="mx-auto flex flex-col flex-grow gap-6"
+          className="mx-auto flex flex-col flex-grow gap-3"
           style={{
             maxWidth: layoutMaxWidth
           }}
         >
           <DialogHeader>
             <DialogTitle>
-              <Translator path="navigation.header.readme" />
+              <Translator path="navigation.header.readme" />  
             </DialogTitle>
           </DialogHeader>
+          <hr />
+          <hr />
           <Markdown
             className="flex flex-col flex-grow overflow-y-auto"
             allowHtml={config?.features?.unsafe_allow_html}

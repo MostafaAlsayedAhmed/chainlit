@@ -30,7 +30,7 @@ export default function Starters({ className }: Props) {
   return (
     <div className={cn('flex gap-2 justify-center flex-wrap', className)}>
       {starters?.map((starter, i) => (
-        <Starter key={i} starter={starter} />
+        <Starter key={i} starter={starter} />  
       ))}
     </div>
   );

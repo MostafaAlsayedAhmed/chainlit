@@ -77,6 +77,7 @@ export default function WelcomeScreen(props: Props) {
       )}
     >
       {logo}
+       
       <MessageComposer {...props} />
       <Starters />
     </div>

@@ -1,9 +1,17 @@
 import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
+import { initReactI18next } from 'react-i18next';  
+import enTranslations from '../../public/locales/en.json'; 
+import arTranslations from '../../public/locales/ar.json';
 
-const i18nConfig = {
-  fallbackLng: 'en-US',
-  defaultNS: 'translation'
+const i18nConfig = { 
+  defaultNS: 'translation',
+  resources: {
+    en: { translations: enTranslations },
+    ar: { translations: arTranslations }
+  },
+  lng: localStorage.getItem('lang') || 'en',
+  fallbackLng: 'en',
+  interpolation: { escapeValue: false }
 };
 
 export function i18nSetupLocalization(): void {
@@ -12,3 +20,7 @@ export function i18nSetupLocalization(): void {
     .init(i18nConfig)
     .catch((err) => console.error('[i18n] Failed to setup localization.', err));
 }
+
+
+ 
+  

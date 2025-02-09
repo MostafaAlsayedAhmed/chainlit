@@ -1,0 +1,42 @@
+// Define breakpoints
+$breakpoints: (
+  sm: 640px,
+  md: 768px,
+  lg: 1024px,
+  xl: 1280px,
+  // "2xl": 1536px
+);
+
+// Mixin for media queries
+@mixin respond($size) {
+  @if map-has-key($breakpoints, $size) {
+    @media (min-width: map-get($breakpoints, $size)) {
+      @content;
+    }
+  } @else {
+    @warn "Breakpoint #{$size} is not defined in $breakpoints.";
+  }
+}
+
+// Mixin for RTL text alignment
+@mixin rtl-text-align($class, $ltr-align, $rtl-align) {
+  .#{$class} {
+    text-align: $ltr-align;
+
+    // RTL Support 
+    [dir='rtl'] & {
+      text-align: $rtl-align;
+    }
+  }
+}
+
+// Mixin for generating responsive text alignment
+@mixin responsive-text-align($class, $ltr-align, $rtl-align) {
+  @include rtl-text-align($class, $ltr-align, $rtl-align);
+
+  @each $size, $value in $breakpoints {
+    @include respond($size) {
+      @include rtl-text-align(#{$size}\:#{$class}, $ltr-align, $rtl-align);
+    }
+  }
+}

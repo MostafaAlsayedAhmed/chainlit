@@ -43,7 +43,7 @@ export const NewChatDialog = ({
             <Translator path="navigation.newChat.dialog.description" />
           </DialogDescription>
         </DialogHeader>
-        <DialogFooter className="gap-2 sm:gap-0">
+        <DialogFooter className="gap-2">
           <Button variant="outline" onClick={handleClose}>
             <Translator path="common.actions.cancel" />
           </Button>

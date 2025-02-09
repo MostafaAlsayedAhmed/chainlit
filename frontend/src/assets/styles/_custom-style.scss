@@ -1,0 +1,20 @@
+// Import mixins
+@import 'mixins';
+
+// Generate text alignment classes with RTL support
+@include responsive-text-align('text-left', left, right);
+@include responsive-text-align('text-right', right, left);
+
+[dir='rtl'] {
+  [role='menu'] .flex {
+    justify-content: flex-end;
+  }
+
+  .step .group {
+    flex-direction: row-reverse;
+  }
+}
+
+[role='menu'] .focus\:bg-accent.active {
+  background-color: rgb(235 235 235) !important;
+}

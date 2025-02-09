@@ -14,6 +14,9 @@ import SidebarTrigger from './SidebarTrigger';
 import { ThemeToggle } from './ThemeToggle';
 import UserNav from './UserNav';
 
+import { LanguageToggle } from '../i18n/langToggle';
+import { Separator } from '../ui/separator';
+
 const Header = memo(() => {
   const { audioConnection } = useAudio();
   const navigate = useNavigate();
@@ -57,9 +60,13 @@ const Header = memo(() => {
 
       <div />
       <div className="flex items-center gap-1">
-        <ReadmeButton />
-        <ApiKeys />
+        {/* <ApiKeys /> */} 
+        <ReadmeButton   className='border' />
+        <Separator orientation="vertical" />
+        <LanguageToggle  className='border'/>
+        <Separator orientation="vertical" />
         <ThemeToggle />
+  
         <UserNav />
       </div>
     </div>
