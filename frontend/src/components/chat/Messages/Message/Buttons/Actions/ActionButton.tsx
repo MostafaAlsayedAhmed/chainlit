@@ -65,7 +65,7 @@ const ActionButton = ({ action }: ActionProps) => {
       onClick={handleClick}
       size="sm"
       variant="ghost"
-      className="text-muted-foreground"
+      className="text-muted-foreground border mx-1"
       disabled={loading || isRunning}
     >
       {icon}

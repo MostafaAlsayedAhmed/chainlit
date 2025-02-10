@@ -11,8 +11,8 @@ import {
 } from '@chainlit/react-client';
 
 // Import local translations
-import enTranslations from '../public/locales/en.json';
-import arTranslations from '../public/locales/ar.json';
+import enTranslations from '@/locales/en.json';
+import arTranslations from '@/locales/ar.json';
 
 export default function AppWrapper() {
   const [translationLoaded, setTranslationLoaded] = useState(false);

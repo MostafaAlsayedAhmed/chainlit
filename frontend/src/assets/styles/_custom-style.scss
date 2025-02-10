@@ -13,8 +13,21 @@
   .step .group {
     flex-direction: row-reverse;
   }
+  .step .ai-message {
+    flex-direction: row-reverse;
+    text-align: left;
+    .items-start {
+      align-items: flex-end;
+    }
+  }
 }
 
 [role='menu'] .focus\:bg-accent.active {
   background-color: rgb(235 235 235) !important;
+}
+
+.dark{
+  [role='menu'] .focus\:bg-accent.active {
+    background-color: rgba(235, 235, 235, 0.305) !important;
+  }
 }

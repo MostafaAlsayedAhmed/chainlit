@@ -53,7 +53,7 @@ async def set_starters():
             icon="/write.svg",
             )
         ]
-# ...
+
 
 @cl.set_chat_profiles
 async def chat_profile(current_user: cl.User):
@@ -93,40 +93,42 @@ async def chat_profile(current_user: cl.User):
           ],
         ),  ]
 
+
+# Reply to a user message
+@cl.on_message
+async def on_message(message: cl.Message):
+    # Get all the messages in the conversation in the OpenAI format
+    print(cl.chat_context.to_openai())
+
+    # Send the response
+    response = f"Hello, you just sent: {message.content}!"
+    await cl.Message(response).send()
+
+
+# to show the actions list.  Create an action
 @cl.on_chat_start
-async def start_chat():
-    cl.user_session.set(
-        "prompt_history",
-        "",
-    )
+async def start():
+    # Sending an action button within a chatbot message
+    actions = [
+        cl.Action(
+            name="action_button",
+            icon="mouse-pointer-click",
+            payload={"value": "example_value"},
+            label="Here is Action 1"
+        ),
+        cl.Action(
+            name="call_us",
+            icon="phone",
+            payload={"value": "example_value"},
+            label="Call Us!"
+        )
+    ]
+
+    await cl.Message(content="Interact with this action button:", actions=actions).send()
 
 
-
-# # List of available languages
-# languages = ["English", "Arabic", "French", "Spanish"]
-
-# # Function to set the UI direction based on language
-# def set_ui_direction(language):
-#     if language == "Arabic":
-#         cl.set_config({"direction": "rtl"})
-#     else:
-#         cl.set_config({"direction": "ltr"})
-
-# @cl.on_chat_start
-# async def start():
-#     # Show the language selection dropdown
-#     await cl.Select(
-#         label="Select Language",
-#         options=languages,
-#         placeholder="Choose a language",
-#         key="language_selection"
-#     ).send()
-
-# @cl.on_message
-# async def on_message(message: str):
-#     # Check if the message is a language selection
-#     if message in languages:
-#         set_ui_direction(message)
-#         await cl.Message(content=f"Language set to {message}.").send()
-#     else:
-#         await cl.Message(content="Please select a valid language from the dropdown.").send()
+@cl.action_callback("action_button")
+async def on_action(action):
+    await cl.Message(content=f"Executed {action.name}").send()
+    # Optionally remove the action button from the chatbot user interface
+    await action.remove()
