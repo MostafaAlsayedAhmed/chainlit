@@ -54,7 +54,12 @@ async def set_starters():
             )
         ]
 
+@cl.on_message
+async def on_message(message: cl.Message):
+    # Get all the messages in the conversation in the OpenAI format
+    print(cl.chat_context.to_openai())
 
+"""
 @cl.set_chat_profiles
 async def chat_profile(current_user: cl.User):
     return [
@@ -104,8 +109,9 @@ async def on_message(message: cl.Message):
     response = f"Hello, you just sent: {message.content}!"
     await cl.Message(response).send()
 
+# to show the actions list.  # Create an action
 
-# to show the actions list.  Create an action
+
 @cl.on_chat_start
 async def start():
     # Sending an action button within a chatbot message
@@ -132,3 +138,6 @@ async def on_action(action):
     await cl.Message(content=f"Executed {action.name}").send()
     # Optionally remove the action button from the chatbot user interface
     await action.remove()
+
+
+"""
