@@ -25,14 +25,16 @@ export default function WaterMark() {
       <div className="text-xs text-muted-foreground">
         <Translator path="chat.watermark" />
       </div>
-      <Logo
+ 
+
+      <Logo 
         style={{
           width: 65,
           height: 'auto',
           filter: 'grayscale(1)',
           marginLeft: '4px'
         }}
-      />
-    </a>
+      /> 
+    </a> 
   );
 }

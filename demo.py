@@ -50,7 +50,7 @@ async def set_starters():
         cl.Starter(
             label="Text inviting friend to wedding",
             message="Write a text asking a friend to be my plus-one at a wedding next month. I want to keep it super short and casual, and offer an out.",
-            icon="/write.svg",
+            icon="public/write.svg",
             )
         ]
 
