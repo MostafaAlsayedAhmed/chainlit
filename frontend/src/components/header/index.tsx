@@ -60,10 +60,10 @@ const Header = memo(() => {
 
       <div />
       <div className="flex items-center gap-1">
-        {/* <ApiKeys /> */} 
-        <ReadmeButton   className='border' />
+        <ApiKeys /> 
+        <ReadmeButton />
         <Separator orientation="vertical" />
-        <LanguageToggle  className='border'/>
+        <LanguageToggle className='border'/>
         <Separator orientation="vertical" />
         <ThemeToggle />
   
