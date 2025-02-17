@@ -8,6 +8,7 @@ import { ChainlitAPI, ChainlitContext } from '@chainlit/react-client';
 
 import './index.css';
 // import './assets/styles/_custom-style.scss';
+import '../../public/custom_style.css';
 
 import { i18nSetupLocalization } from './i18n'; 
 i18nSetupLocalization();

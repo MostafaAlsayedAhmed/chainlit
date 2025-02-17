@@ -15,6 +15,9 @@ import subprocess
 # Define paths
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
+# Define the path to main.tsx
+main_tsx_path = os.path.join(BASE_DIR, 'frontend/src/main.tsx')
+
 # Paths for colors
 theme_json_path = os.path.join(BASE_DIR, 'public/theme.json')
 css_file_path = os.path.join(BASE_DIR, 'frontend/src/index.css')
@@ -64,6 +67,33 @@ def run_pnpm_commands():
     except subprocess.CalledProcessError as e:
         print(f"❌ Error running PNPM command: {e}")
 
+# def pre_tasks():
+    # add public folder in BASE_DIR then copy theme.json to it
+def pre_tasks():
+    """Ensure /public folder exists, copy theme.json, and move demo.py to BASE_DIR."""
+    public_dir = os.path.join(BASE_DIR, 'public')
+    theme_json_source = os.path.join(BASE_DIR, 'rebranding_assets/theme.json')
+    theme_json_dest = os.path.join(public_dir, 'theme.json')
+    demo_py_source = os.path.join(BASE_DIR, 'assets/demo.py')
+    demo_py_dest = os.path.join(BASE_DIR, 'demo.py')
+
+    # Create /public folder if it doesn't exist
+    os.makedirs(public_dir, exist_ok=True)
+
+    # Copy theme.json to /public
+    if os.path.exists(theme_json_source):
+        shutil.copy(theme_json_source, theme_json_dest)
+        print("✅ Copied theme.json to /public folder.")
+    else:
+        print("⚠️ theme.json not found in rebranding_assets. Skipping copy.")
+
+    # Move demo.py to BASE_DIR
+    if os.path.exists(demo_py_source):
+        shutil.move(demo_py_source, demo_py_dest)
+        print("✅ Moved demo.py to BASE_DIR.")
+    else:
+        print("⚠️ demo.py not found in assets. Skipping move.")
+
 
 # Function to update colors
 def update_colors():
@@ -109,7 +139,6 @@ def update_colors():
 
         print("✅ Updated index.css with new colors.")
 
-
 # Function to replace logos
 def replace_logos():
     #  copy(new, old) means copy from [rebranding_assets] to [main_dir]
@@ -139,7 +168,7 @@ def inject_themeing():
     custom_js_dest = os.path.join(BASE_DIR, 'public/custom.js')
     custom_css_dest = os.path.join(BASE_DIR, 'public/custom.css')
 
-    # Copy custom.js and custom.css to the public folder
+    # Copy custom.js and custom.css to the public folder, before the next steps
     if os.path.exists(custom_js_source):
         shutil.copy(custom_js_source, custom_js_dest)
     if os.path.exists(custom_css_source):
@@ -171,6 +200,24 @@ def inject_themeing():
 
         print("✅ Updated config.toml: Injected/Updated custom.js and custom.css.")
 
+    # Injects custom CSS import after index.css import in main.tsx.
+    if os.path.exists(main_tsx_path):
+        with open(main_tsx_path, 'r') as f:
+            main_tsx_content = f.read()
+
+        # Ensure the custom style import is added after index.css import
+        if "import './index.css';" in main_tsx_content and "import '../../public/custom.css';" not in main_tsx_content:
+            main_tsx_content = main_tsx_content.replace(
+                "import './index.css';",
+                "import './index.css'; \nimport '../../public/custom.css';"
+            )
+
+            with open(main_tsx_path, 'w') as f:
+                f.write(main_tsx_content)
+            print("✅ Injected custom-style.css import in main.tsx.")
+        else:
+            print("⚠️ custom-style.css import already exists or index.css import is missing.")
+
 
 # Function to update icons
 """ If there are any messages (starters) requires icons """
@@ -184,7 +231,7 @@ def update_icons():
     print("Updated icons.")
 
 
-# Function to update localization
+# Function to update localization & implement RTL support
 def update_localization():
     # Ensure the translations directory exists
     os.makedirs(translations_dir, exist_ok=True)
@@ -247,9 +294,8 @@ def update_localization():
     print("✅ RTL support adjustments applied.")
 
 
-# Function to implement RTL support
-def enable_rtl():
-    # Modify DialogPrimitive.Close in dialog.tsx ✅
+    # Here we can add styles/classes updates
+    # Modify DialogPrimitive.Close in dialog.tsx
     with open(dialog_tsx, 'r') as f:
         dialog_content = f.read()
     if 'rtl:left-4' not in dialog_content:
@@ -267,29 +313,7 @@ def enable_rtl():
 
 
 
-    # # Modify _mixins.scss
-    # with open(mixins_scss, 'r') as f:
-    #     mixins_content = f.read()
-    # if 'direction' not in mixins_content:
-    #     mixins_content += '\nbody { direction: rtl; }'
-    # with open(mixins_scss, 'w') as f:
-    #     f.write(mixins_content)
 
-    # # Modify _custom_stylesheets.scss
-    # with open(custom_styles_scss, 'r') as f:
-    #     custom_styles_content = f.read()
-    # if 'text-align: right' not in custom_styles_content:
-    #     custom_styles_content += '\nbody { text-align: right; }'
-    # with open(custom_styles_scss, 'w') as f:
-    #     f.write(custom_styles_content)
-
-    """
-    Still this part needs to be updated -
-    I made them in just one css file "/public/custom_style.css" to be injected in config.toml,
-    it's working well at the backend project, but not working in the frontend.
-    I will use the /public/custom_style.css also in the frontend .main.tsx file.
-    then add it too inject_themeing() function.
-    """
 
 
 
@@ -305,15 +329,23 @@ def enable_rtl():
 def run_all():
     run_pnpm_commands() # Run this function at the appropriate step in your script
 
+    pre_tasks()
     update_colors()
     replace_logos()
     update_footer()
     inject_themeing()
     update_icons()
     update_localization()
-    enable_rtl()
     print("All branding updates applied successfully!")
 
 if __name__ == '__main__':
     run_all()
 
+
+
+
+
+""" Testing Notes
+- maybe we have to add public files to /frontend/public also
+
+"""
