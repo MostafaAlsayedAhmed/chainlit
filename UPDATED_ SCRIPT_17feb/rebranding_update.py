@@ -1,6 +1,6 @@
 
 """ updates/notes
-inject_themeing() we can add variables
+inject_themeing() we can add variables for the custom.css/custom.js
 ".chainlit" will add to the project after "pnpm run preinstall" & "pnpm run install" & "pnpm run dev"
 """
 
@@ -24,13 +24,13 @@ css_file_path = os.path.join(BASE_DIR, 'frontend/src/index.css')
 
 # Paths for logos
 public_dir = os.path.join(BASE_DIR, 'public')
-logo_dark = os.path.join(BASE_DIR, 'rebranding_assets/logo_dark.png')
-logo_light = os.path.join(BASE_DIR, 'rebranding_assets/logo_light.png')
+our_logo_dark = os.path.join(BASE_DIR, 'rebranding_assets/logo_dark.png')
+our_logo_light = os.path.join(BASE_DIR, 'rebranding_assets/logo_light.png')
 favicon = os.path.join(BASE_DIR, 'rebranding_assets/favicon.png')
 
 # Paths for footer updates
-logo_light_svg = os.path.join(BASE_DIR, 'frontend/src/assets/logo_light.svg')
-logo_dark_svg  = os.path.join(BASE_DIR, 'frontend/src/assets/logo_dark.svg')
+our_logo_light_svg = os.path.join(BASE_DIR, 'rebranding_assets/logo_light.svg')
+our_logo_dark_svg  = os.path.join(BASE_DIR, 'rebranding_assets/logo_dark.svg')
 watermark_tsx  = os.path.join(BASE_DIR, 'frontend/src/components/WaterMark.tsx')
 
 # Paths for theming (config.toml)
@@ -53,8 +53,11 @@ custom_styles_scss = os.path.join(BASE_DIR, 'frontend/src/styles/_custom_stylesh
 def run_pnpm_commands():
     """Runs the necessary PNPM commands in sequence."""
     try:
+        subprocess.run(["cd", "frontend"], check=True)
+
         print("🚀 Running preinstall...")
         subprocess.run(["pnpm", "run", "preinstall"], check=True)
+        # subprocess.run(["npx", "pnpm", "run", "preinstall"], check=True)
 
         print("🚀 Running install...")
         subprocess.run(["pnpm", "install"], check=True)
@@ -67,14 +70,18 @@ def run_pnpm_commands():
     except subprocess.CalledProcessError as e:
         print(f"❌ Error running PNPM command: {e}")
 
-# def pre_tasks():
-    # add public folder in BASE_DIR then copy theme.json to it
+
+def run_chainlit_commands():
+    """Runs the necessary Chainlit commands in sequence."""
+    # pip install chainlit
+    # chainlit run demo.py -w
+
 def pre_tasks():
     """Ensure /public folder exists, copy theme.json, and move demo.py to BASE_DIR."""
     public_dir = os.path.join(BASE_DIR, 'public')
     theme_json_source = os.path.join(BASE_DIR, 'rebranding_assets/theme.json')
     theme_json_dest = os.path.join(public_dir, 'theme.json')
-    demo_py_source = os.path.join(BASE_DIR, 'assets/demo.py')
+    demo_py_source = os.path.join(BASE_DIR, 'rebranding_assets/demo.py')
     demo_py_dest = os.path.join(BASE_DIR, 'demo.py')
 
     # Create /public folder if it doesn't exist
@@ -89,7 +96,7 @@ def pre_tasks():
 
     # Move demo.py to BASE_DIR
     if os.path.exists(demo_py_source):
-        shutil.move(demo_py_source, demo_py_dest)
+        shutil.copy(demo_py_source, demo_py_dest)
         print("✅ Moved demo.py to BASE_DIR.")
     else:
         print("⚠️ demo.py not found in assets. Skipping move.")
@@ -97,53 +104,66 @@ def pre_tasks():
 
 # Function to update colors
 def update_colors():
-    # Update `theme.json`
-    if os.path.exists(theme_json_path):
-        with open(theme_json_path, 'r') as f:
-            theme_data = json.load(f)
+    # Define separate replacements for light and dark themes
+    css_replacements_light = {
+        "--primary": "172 70% 50%",
+        "--secondary": "220 50% 90%",
+        "--accent": "200 60% 40%",
+        "--destructive": "0 85% 55%"
+    }
+    css_replacements_dark = {
+        "--primary": "220 70% 45%",
+        "--secondary": "210 50% 80%",
+        "--accent": "200 65% 35%",
+        "--destructive": "0 75% 50%"
+    }
 
-        # Only update the specific colors in theme.json
-        theme_updates = {
-            "--primary": "200 70% 50%",
-            "--secondary": "220 50% 90%",
-            "--accent": "200 60% 40%",
-            "--destructive": "0 85% 55%"
-        }
-
-        theme_data.update(theme_updates)
-
-        with open(theme_json_path, 'w') as f:
-            json.dump(theme_data, f, indent=4)
-
-        print("✅ Updated theme.json with new colors.")
-
-    # Update `index.css`
+    # Function to update colors in CSS
     if os.path.exists(css_file_path):
         with open(css_file_path, 'r') as f:
             css_data = f.read()
 
-        # Define CSS replacements using regex (since CSS uses space-separated HSL values)
-        css_replacements = {
-            "--primary": "200 70% 50%",
-            "--secondary": "220 50% 90%",
-            "--accent": "200 60% 40%",
-            "--destructive": "0 85% 55%"
-        }
+        # Update light theme
+        for key, new_value in css_replacements_light.items():
+            css_data = re.sub(rf"(\s*{re.escape(key)}\s*:\s*)\d+(\.\d+)?\s+\d+(\.\d+)?%\s+\d+(\.\d+)?%;",
+                              lambda m: f"{m.group(1)}{new_value};", css_data)
 
-        for key, new_value in css_replacements.items():
-            # Use regex to find `--primary: 271 52% 45%;` and replace the value
-            css_data = re.sub(rf"({key}: )[\d.]+ [\d.]+% [\d.]+%;", rf"\1{new_value};", css_data)
+        # Update dark theme
+        for key, new_value in css_replacements_dark.items():
+            css_data = re.sub(rf"(\.dark\s*{{[\s\S]*?{re.escape(key)}\s*:\s*)\d+(\.\d+)?\s+\d+(\.\d+)?%\s+\d+(\.\d+)?%;",
+                              lambda m: f"{m.group(1)}{new_value};", css_data)
+
+        # Ensure proper formatting
+        css_data = re.sub(r"\n\n+", "\n", css_data).strip()
 
         with open(css_file_path, 'w') as f:
             f.write(css_data)
 
-        print("✅ Updated index.css with new colors.")
+        print("✅ Updated index.css with new light and dark theme colors.")
+
+
+    # Function to update colors in theme.json
+    if os.path.exists(theme_json_path):
+        with open(theme_json_path, 'r') as f:
+            theme_data = json.load(f)
+
+        theme_data.update({
+            "light": css_replacements_light,
+            "dark": css_replacements_dark
+        })
+
+        with open(theme_json_path, 'w') as f:
+            json.dump(theme_data, f, indent=4)
+
+        print("✅ Updated theme.json with new light and dark theme colors.")
+
+
 
 # Function to replace logos
 def replace_logos():
     #  copy(new, old) means copy from [rebranding_assets] to [main_dir]
-    shutil.copy(logo_dark, os.path.join(public_dir, 'logo_dark.png'))
-    shutil.copy(logo_light, os.path.join(public_dir, 'logo_light.png'))
+    shutil.copy(our_logo_dark, os.path.join(public_dir, 'logo_dark.png'))
+    shutil.copy(our_logo_light, os.path.join(public_dir, 'logo_light.png'))
     shutil.copy(favicon, os.path.join(public_dir, 'favicon.png'))
     print("Replaced logos.")
 
@@ -162,15 +182,17 @@ def replace_favicon():
 
 # Function to update footer
 def update_footer():
-    shutil.copy(logo_light_svg, os.path.join(BASE_DIR, 'frontend/src/assets/logo_light.svg'))
-    shutil.copy(logo_dark_svg, os.path.join(BASE_DIR, 'frontend/src/assets/logo_dark.svg'))
+    #  copy(new, old) means copy from [rebranding_assets] to [main_dir]
+    shutil.copy(our_logo_light_svg, os.path.join(BASE_DIR, 'frontend/src/assets/logo_light.svg'))
+    shutil.copy(our_logo_dark_svg, os.path.join(BASE_DIR, 'frontend/src/assets/logo_dark.svg'))
+
 
     with open(watermark_tsx, 'r') as f:
         content = f.read()
     content = content.replace('https://github.com/Chainlit/chainlit', 'https://arabot.io/')
     with open(watermark_tsx, 'w') as f:
         f.write(content)
-    print("Updated footer and watermark.")
+    print("✅ Updated footer and watermark.")
 
 
 # Function to inject styles and scripts into config.toml
@@ -189,7 +211,7 @@ def inject_themeing():
         shutil.copy(custom_css_source, custom_css_dest)
     print("✅ Copied custom.js & custom.css to public folder.")
 
-    # Update config.toml
+    # Update config.toml - it should be after >pip install chainlit
     if os.path.exists(config_toml_path):
         with open(config_toml_path, 'r') as f:
             config_data = f.read()
@@ -198,21 +220,31 @@ def inject_themeing():
         if "[UI]" not in config_data:
             config_data += "\n[UI]\n"
 
-        # Update or insert custom_css and custom_js
-        config_data = re.sub(r'# custom_css\s*=\s*".*?"', 'custom_css = "public/custom.css"', config_data)
-        config_data = re.sub(r'# custom_js\s*=\s*".*?"', 'custom_js = "public/custom.js"', config_data)
+        # Check if the [UI] section is already there
+        ui_section_match = re.search(r'(\[UI\])([\s\S]*?)(?=\n\[|\Z)', config_data)
+        if ui_section_match:
+            ui_section_content = ui_section_match.group(2)
 
-        # If keys didn't exist, add them
-        if '# custom_css =' not in config_data:
-            config_data += '\ncustom_styles = "public/custom.css"\n'
-        if '# custom_js =' not in config_data:
-            config_data += 'custom_js = "public/custom.js"\n'
+            # Update or insert custom_css and custom_js
+            if "custom_css =" in ui_section_content:
+                ui_section_content = re.sub(r'# custom_css\s*=\s*".*?"', 'custom_css = "public/custom.css"', ui_section_content)
+            else:
+                ui_section_content += '\ncustom_css = "public/custom.css"'
+
+            if "custom_js =" in ui_section_content:
+                ui_section_content = re.sub(r'# custom_js\s*=\s*".*?"', 'custom_js = "public/custom.js"', ui_section_content)
+            else:
+                ui_section_content += '\ncustom_js = "public/custom.js"'
+
+            # Replace the original [UI] section with the updated content
+            config_data = re.sub(r'(\[UI\])([\s\S]*?)(?=\n\[|\Z)', f'\\1{ui_section_content}', config_data)
 
         # Save back the updated config file
         with open(config_toml_path, 'w') as f:
             f.write(config_data)
 
-        print("✅ Updated config.toml: Injected/Updated custom.js and custom.css.")
+        print("✅ Updated config.toml: Injected/Updated custom.js and custom.css under [UI].")
+
 
     # Injects custom CSS import after index.css import in main.tsx.
     if os.path.exists(main_tsx_path):
@@ -233,16 +265,24 @@ def inject_themeing():
             print("⚠️ custom-style.css import already exists or index.css import is missing.")
 
 
-# Function to update icons
-""" If there are any messages (starters) requires icons """
+# Function to update icons - If there are any messages (starters) requires icons
 def update_icons():
     icons_dir = os.path.join(BASE_DIR, 'frontend/public/icons')
+    outer_public_icons_dir = os.path.join(BASE_DIR, 'public/icons')
     new_icons_dir = os.path.join(BASE_DIR, 'rebranding_assets/icons')
 
+    # Ensure the icons directory exists
+    os.makedirs(icons_dir, exist_ok=True)
+    os.makedirs(outer_public_icons_dir, exist_ok=True)
+
+    # Copy SVG icons from rebranding_assets/icons to frontend/public/icons
     for icon in os.listdir(new_icons_dir):
         if icon.endswith('.svg'):
+            shutil.copy(os.path.join(new_icons_dir, icon), os.path.join(outer_public_icons_dir, icon))
             shutil.copy(os.path.join(new_icons_dir, icon), os.path.join(icons_dir, icon))
-    print("Updated icons.")
+
+    print("✅ Updated icons: Copied all SVG icons to /public/icons & frontend/public/icons.")
+
 
 
 # Function to update localization & implement RTL support
@@ -286,7 +326,7 @@ def update_localization():
         if "<ThemeToggle />" in header_content and "LanguageToggle" not in header_content:
             header_content = re.sub(
                 r'(<ThemeToggle\s*/?>)',
-                "<LanguageToggle className='border'/><Separator orientation='vertical' />\n    \\1",
+                "<LanguageToggle className='border'/> <Separator orientation='vertical' />\n    \\1",
                 header_content
             )
 
@@ -305,7 +345,6 @@ def update_localization():
 
         print("✅ Added LanguageToggle and Separator to header/index.tsx.")
 
-    print("✅ RTL support adjustments applied.")
 
 
     # Here we can add styles/classes updates
@@ -320,7 +359,8 @@ def update_localization():
     with open(dialog_tsx, 'w') as f:
         f.write(dialog_content)
 
-    print("RTL support enabled.")
+
+    print("✅ RTL support adjustments applied.")
 
 
 
@@ -341,17 +381,19 @@ def update_localization():
 
 # Run all functions
 def run_all():
-    run_pnpm_commands() # Run this function at the appropriate step in your script
+    # run_pnpm_commands() #❌
+    # run_chainlit_commands()
 
-    pre_tasks()
-    update_colors()
-    replace_logos()
-    replace_favicon()
-    update_footer()
-    inject_themeing()
-    update_icons()
-    update_localization()
-    print("All branding updates applied successfully!")
+
+    pre_tasks()       #✅
+    update_colors()   #✅
+    replace_logos()   #✅
+    replace_favicon() #✅
+    update_footer()   #✅
+    inject_themeing() #✅
+    update_icons()    #✅
+    update_localization() #✅
+    print("All Arabot branding updates applied successfully! 🚀")
 
 if __name__ == '__main__':
     run_all()
