@@ -25,6 +25,10 @@
   .step .ai-message .items-start {
     align-items: flex-end;
   }
+  .right-4 {
+    left: 1rem;
+    right: unset;
+  }
 }
 
 /* ============================= */
@@ -37,5 +41,6 @@
   background-color: rgba(235, 235, 235, 0.305) !important;
 }
 
-
-/* *{background: red;} */
+a.watermark svg {
+  height: 30px !important;
+} 

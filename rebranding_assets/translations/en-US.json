@@ -57,7 +57,7 @@
     },
     "chat": {
         "input": {
-            "placeholder": "Type your message here... w00!!!",
+            "placeholder": "Type your message here...",
             "actions": {
                 "send": "Send message",
                 "stop": "Stop Task",

@@ -12,10 +12,10 @@ overrides:
 importers:
 
   .:
-    dependencies:
-      '@chainlit/react-client':
-        specifier: ^0.2.2
-        version: 0.2.2(@types/react@18.2.15)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(recoil@0.7.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
+    # dependencies:
+    #   '@chainlit/react-client':
+    #     specifier: ^0.2.2
+    #     version: 0.2.2(@types/react@18.2.15)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(recoil@0.7.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
     devDependencies:
       '@trivago/prettier-plugin-sort-imports':
         specifier: ^4.3.0

@@ -233,6 +233,34 @@ def inject_themeing():
             print("⚠️ custom-style.css import already exists or index.css import is missing.")
 
 
+# Update custom_build in config.toml // after build
+def update_custom_build():
+    build_src = os.path.join(BASE_DIR, 'frontend/dist')
+
+    if os.path.exists(build_src):
+        if os.path.exists(config_toml_path):
+            with open(config_toml_path, 'r') as f:
+                config_data = f.read()
+
+            # Ensure the [UI] section exists
+            if "[UI]" not in config_data:
+                config_data += "\n[UI]\n"
+
+            # Update or insert custom_build and custom_js
+            config_data = re.sub(r'# custom_build\s*=\s*".*?"', 'custom_build = "frontend/dist"', config_data)
+
+            # If keys didn't exist, add them
+            if '# custom_build =' not in config_data:
+                config_data += '\ncustom_styles = "frontend/dist"\n'
+
+            # Save back the updated config file
+            with open(config_toml_path, 'w') as f:
+                f.write(config_data)
+
+            print("✅ Updated config.toml: Injected/Updated custom_build = frontend/dist.")
+
+
+
 # Function to update icons
 """ If there are any messages (starters) requires icons """
 def update_icons():
@@ -351,6 +379,7 @@ def run_all():
     inject_themeing()
     update_icons()
     update_localization()
+    # update_custom_build()
     print("All branding updates applied successfully!")
 
 if __name__ == '__main__':

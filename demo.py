@@ -35,7 +35,7 @@ async def set_starters():
         cl.Starter(
             label="Morning routine ideation",
             message="Can you help me create a personalized morning routine that would help increase my productivity throughout the day? Start by asking me about my current habits and what activities energize me in the morning.",
-            icon="/idea.svg",
+            icon="frontend/public/idea.svg",
             ),
         cl.Starter(
             label="Explain superconductors",

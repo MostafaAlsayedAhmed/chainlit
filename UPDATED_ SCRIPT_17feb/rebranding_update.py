@@ -1,8 +1,8 @@
-
 """ updates/notes
 inject_themeing() we can add variables for the custom.css/custom.js
 ".chainlit" will add to the project after "pnpm run preinstall" & "pnpm run install" & "pnpm run dev"
 """
+
 
 import json
 import os
@@ -26,7 +26,7 @@ css_file_path = os.path.join(BASE_DIR, 'frontend/src/index.css')
 public_dir = os.path.join(BASE_DIR, 'public')
 our_logo_dark = os.path.join(BASE_DIR, 'rebranding_assets/logo_dark.png')
 our_logo_light = os.path.join(BASE_DIR, 'rebranding_assets/logo_light.png')
-favicon = os.path.join(BASE_DIR, 'rebranding_assets/favicon.png')
+our_favicon = os.path.join(BASE_DIR, 'rebranding_assets/favicon.png')
 
 # Paths for footer updates
 our_logo_light_svg = os.path.join(BASE_DIR, 'rebranding_assets/logo_light.svg')
@@ -73,8 +73,15 @@ def run_pnpm_commands():
 
 def run_chainlit_commands():
     """Runs the necessary Chainlit commands in sequence."""
-    # pip install chainlit
-    # chainlit run demo.py -w
+    try:
+        subprocess.run(["pip", "install", "chainlit"], check=True)
+        print("🚀 installing chainlit...")
+        # subprocess.run(["chainlit", "run", "demo.py", "-w"], check=True)
+        # print("🚀 Running install...")
+
+    except subprocess.CalledProcessError as e:
+        print(f"❌ Error running chainlit command: {e}")
+
 
 def pre_tasks():
     """Ensure /public folder exists, copy theme.json, and move demo.py to BASE_DIR."""
@@ -94,28 +101,93 @@ def pre_tasks():
     else:
         print("⚠️ theme.json not found in rebranding_assets. Skipping copy.")
 
-    # Move demo.py to BASE_DIR
+    # Move demo.py to BASE_DIR - to test the rebranding
     if os.path.exists(demo_py_source):
         shutil.copy(demo_py_source, demo_py_dest)
-        print("✅ Moved demo.py to BASE_DIR.")
+        print("✅ Moved demo.py to BASE_DIR, You can run ⭐ `pip install chainlit` ==> `chainlit run demo.py -w`.")
     else:
-        print("⚠️ demo.py not found in assets. Skipping move.")
+        print("⚠️ demo.py not found in assets, You can run ⭐ `pip install chainlit` ==> `chainlit hello`.")
+
+
+
+def replace_text_safely( search_text, replace_text, file_extensions=None, backup=True):
+    EXCLUDED_FILES = ["rebranding_update.py"]  # List of files to exclude from modifications
+
+    """
+    Safely searches and replaces text in project files while preserving Python code integrity.
+
+    Args:
+        search_text (str): The text to search for.
+        replace_text (str): The text to replace it with.
+        file_extensions (list): A list of file extensions to scan (default: source code and config files).
+        backup (bool): Whether to create a backup of modified files.
+    """
+    if file_extensions is None:
+        file_extensions = ['.py', '.tsx', '.js', '.json', '.css', '.scss', '.toml', '.html']  # Safe text-based formats
+
+    for root, _, files in os.walk(BASE_DIR):
+        # Skip certain directories (to prevent breaking dependencies)
+        if any(skip in root for skip in ['node_modules', '.git', 'venv', '__pycache__']):
+            continue
+
+        for file in files:
+            if file in EXCLUDED_FILES:  # Skip the excluded file(s)
+                print(f"⏭️ Skipping file: {file}")
+                continue
+
+            if any(file.endswith(ext) for ext in file_extensions):
+                file_path = os.path.join(root, file)
+
+                # Read the file content
+                with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                    content = f.read()
+
+                # Use regex to prevent replacing inside Python variables/functions
+                new_content = re.sub(rf"\b{re.escape(search_text)}\b", replace_text, content)
+
+                if new_content != content:
+                    if backup:
+                        shutil.copy(file_path, file_path + ".bak")  # Create a backup before modifying
+                        print(f"🔄 Backup created: {file_path}.bak")
+
+                    # Write back the modified content
+                    with open(file_path, 'w', encoding='utf-8') as f:
+                        f.write(new_content)
+
+                    print(f"✅ Replaced occurrences in: {file_path}")
+
+
+def update_header():
+    # Modify `header/index.tsx` to comment out `<ReadmeButton />`
+    if os.path.exists(header_index_tsx):
+        with open(header_index_tsx, 'r') as f:
+            header_content = f.read()
+
+        # Step 1️⃣: Comment out <ReadmeButton />
+        if "<ReadmeButton" in header_content:
+            header_content = re.sub( r'(<ReadmeButton\s*/?>)', r'{/* \1 */}', header_content )
+
+        # Save changes to header/index.tsx
+        with open(header_index_tsx, 'w') as f:
+            f.write(header_content)
+
+        print("✅ Commented out <ReadmeButton /> in header/index.tsx.")
 
 
 # Function to update colors
 def update_colors():
     # Define separate replacements for light and dark themes
     css_replacements_light = {
-        "--primary": "172 70% 50%",
-        "--secondary": "220 50% 90%",
-        "--accent": "200 60% 40%",
-        "--destructive": "0 85% 55%"
+        "--primary": "271 52% 45%",
+        "--secondary": "0 0% 19%",
+        "--accent": "0 0% 26%",
+        "--destructive": "0 62.8% 30.6%"
     }
     css_replacements_dark = {
-        "--primary": "220 70% 45%",
+        "--primary": "271 52% 45%",
         "--secondary": "210 50% 80%",
-        "--accent": "200 65% 35%",
-        "--destructive": "0 75% 50%"
+        "--accent": "0 0% 26%",
+        "--destructive": "0 62.8% 30.6%"
     }
 
     # Function to update colors in CSS
@@ -164,7 +236,7 @@ def replace_logos():
     #  copy(new, old) means copy from [rebranding_assets] to [main_dir]
     shutil.copy(our_logo_dark, os.path.join(public_dir, 'logo_dark.png'))
     shutil.copy(our_logo_light, os.path.join(public_dir, 'logo_light.png'))
-    shutil.copy(favicon, os.path.join(public_dir, 'favicon.png'))
+    shutil.copy(our_favicon, os.path.join(public_dir, 'favicon.png'))
     print("Replaced logos.")
 
 
@@ -348,6 +420,7 @@ def update_localization():
 
 
     # Here we can add styles/classes updates
+    """
     # Modify DialogPrimitive.Close in dialog.tsx
     with open(dialog_tsx, 'r') as f:
         dialog_content = f.read()
@@ -361,7 +434,34 @@ def update_localization():
 
 
     print("✅ RTL support adjustments applied.")
+    """
 
+
+# Update custom_build in config.toml // after build
+def update_custom_build():
+    build_src = os.path.join(BASE_DIR, 'frontend/dist')
+
+    if os.path.exists(build_src):
+        if os.path.exists(config_toml_path):
+            with open(config_toml_path, 'r') as f:
+                config_data = f.read()
+
+            # Ensure the [UI] section exists
+            if "[UI]" not in config_data:
+                config_data += "\n[UI]\n"
+
+            # Update or insert custom_build and custom_js
+            config_data = re.sub(r'# custom_build\s*=\s*".*?"', 'custom_build = "frontend/dist"', config_data)
+
+            # If keys didn't exist, add them
+            if '# custom_build =' not in config_data:
+                config_data += '\ncustom_styles = "frontend/dist"\n'
+
+            # Save back the updated config file
+            with open(config_toml_path, 'w') as f:
+                f.write(config_data)
+
+            print("✅ Updated config.toml: Injected/Updated custom_build = frontend/dist.")
 
 
 
@@ -382,10 +482,12 @@ def update_localization():
 # Run all functions
 def run_all():
     # run_pnpm_commands() #❌
-    # run_chainlit_commands()
+    run_chainlit_commands()
 
 
     pre_tasks()       #✅
+    replace_text_safely("https://github.com/Chainlit/chainlit", "https://arabot.io/")
+    update_header()
     update_colors()   #✅
     replace_logos()   #✅
     replace_favicon() #✅
@@ -393,6 +495,7 @@ def run_all():
     inject_themeing() #✅
     update_icons()    #✅
     update_localization() #✅
+    # update_custom_build()
     print("All Arabot branding updates applied successfully! 🚀")
 
 if __name__ == '__main__':
