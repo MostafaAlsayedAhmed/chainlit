@@ -1,0 +1,58 @@
+/* *  {
+    background-color: rgba(0, 255, 255, 0.002) !important;
+} */
+
+
+.watermark svg{
+    height: 30px !important;
+}
+
+/* ============================= */
+/* Responsive Breakpoints */
+/* ============================= */
+@media (min-width: 640px) { .sm\:text-left { text-align: left; } [dir='rtl'] .sm\:text-left { text-align: right; } }
+@media (min-width: 768px) { .md\:text-left { text-align: left; } [dir='rtl'] .md\:text-left { text-align: right; } }
+@media (min-width: 1024px) { .lg\:text-left { text-align: left; } [dir='rtl'] .lg\:text-left { text-align: right; } }
+@media (min-width: 1280px) { .xl\:text-left { text-align: left; } [dir='rtl'] .xl\:text-left { text-align: right; } }
+@media (min-width: 1536px) { .\32xl\:text-left { text-align: left; } [dir='rtl'] .\32xl\:text-left { text-align: right; } }
+/* \32 is the hex code for 2 */ 
+
+/* ============================= */
+/* RTL Support */
+/* ============================= */
+/* [dir='rtl'] * {background-color: aquamarine;} */
+[dir='rtl'] {
+  [role='menu'] .flex {
+    justify-content: flex-end;
+  }
+  .step .group {
+    flex-direction: row-reverse;
+  }
+  .step .ai-message {
+    flex-direction: row-reverse;
+    text-align: left;
+  }
+  .step .ai-message .items-start {
+    align-items: flex-end;
+  } 
+}
+
+
+/* ============================= */
+/* Menu Active States */
+/* ============================= */
+[role='menu'] .focus\:bg-accent.active {
+  background-color: rgb(235 235 235) !important;
+}
+.dark [role='menu'] .focus\:bg-accent.active {
+  background-color: rgba(235, 235, 235, 0.305) !important;
+}
+
+ 
+
+/* 
+in the rtl
+.right-8 {
+    right: unset;
+    left: 2rem;
+} */
